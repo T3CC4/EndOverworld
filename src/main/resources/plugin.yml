@@ -15,7 +15,7 @@ commands:
     usage: /ancientsite <tp|list|nearest|random|info|stats> [args]
     aliases: [asite, ancient]
     permission: endoverworld.ancientsite
-    permission-message: "§c❌ You don't have permission to use Ancient Site commands!"
+    permission-message: "§cYou don't have permission to use Ancient Site commands!"
 
 # Permissions
 permissions:
