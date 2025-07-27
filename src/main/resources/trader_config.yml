@@ -1,0 +1,393 @@
+# Trading Enderman Configuration
+# Enhanced configuration for the Trading Enderman system in EndOverworld
+
+# Trader Settings
+trader_settings:
+  # Chance for an Enderman to spawn as a Trading Enderman (0.01 = 1%)
+  spawn_chance: 0.035
+
+  # Maximum level a trader can reach
+  max_level: 8
+
+  # Number of trades required per level to advance
+  trades_per_level: 5
+
+  # Experience multiplier for higher level trades
+  level_experience_multiplier: 1.5
+
+  # Number of random items to drop when a trader dies
+  death_drops: 2
+
+  # Enable trader particle effects
+  particle_effects: true
+
+  # Particle effect interval (in ticks, 20 = 1 second)
+  particle_interval: 15
+
+  # Trader despawn protection (prevents despawning)
+  prevent_despawn: true
+
+  # Trading cooldown per player (in seconds)
+  trade_cooldown: 10
+
+# Economy Settings
+economy:
+  # Primary currency for End trades
+  primary_currency: "CHORUS_FRUIT"
+
+  # Secondary currencies accepted (with conversion rates)
+  secondary_currencies:
+    ENDER_PEARL: 3    # 1 Ender Pearl = 3 Chorus Fruit
+    END_CRYSTAL: 12   # 1 End Crystal = 12 Chorus Fruit
+    DRAGON_BREATH: 8  # 1 Dragon Breath = 8 Chorus Fruit
+    SHULKER_SHELL: 15 # 1 Shulker Shell = 15 Chorus Fruit
+
+  # Dynamic pricing (prices fluctuate based on demand)
+  dynamic_pricing:
+    enabled: false
+    price_variance: 0.25  # ±25% price variation
+    demand_factor: 0.1    # How much demand affects prices
+
+# Rarity Colors and Multipliers
+rarity_colors:
+  common: "§f"      # White
+  uncommon: "§a"    # Green
+  rare: "§9"        # Blue
+  epic: "§5"        # Purple
+  legendary: "§6"   # Gold
+  mythic: "§c"      # Red
+  divine: "§b"      # Aqua
+
+# Rarity pricing multipliers
+rarity_multipliers:
+  common: 1.0
+  uncommon: 1.2
+  rare: 1.5
+  epic: 2.0
+  legendary: 3.0
+  mythic: 4.0
+  divine: 5.0
+
+# Main Trade Offers - Carefully Balanced Economy
+trade_offers:
+  # === LEVEL 1 - BASIC TRADES (Common Items) ===
+  # Building Materials
+  - "CHORUS_FRUIT:2:COBBLESTONE:32:§fCobblestone Stack:common:1"
+  - "CHORUS_FRUIT:3:END_STONE:24:§fEnd Stone Blocks:common:1"
+  - "CHORUS_FRUIT:4:PURPUR_BLOCK:16:§fPurpur Blocks:common:1"
+  - "CHORUS_FRUIT:3:OBSIDIAN:8:§fObsidian Blocks:common:1"
+  - "CHORUS_FRUIT:2:GLASS:20:§fGlass Blocks:common:1"
+
+  # Basic Resources
+  - "CHORUS_FRUIT:4:COAL:24:§fCoal Bundle:common:1"
+  - "CHORUS_FRUIT:5:IRON_INGOT:8:§fIron Ingots:common:1"
+  - "CHORUS_FRUIT:3:TORCH:32:§fTorch Pack:common:1"
+  - "CHORUS_FRUIT:6:ENDER_PEARL:3:§fEnder Pearl Trio:common:1"
+
+  # === LEVEL 2 - IMPROVED TRADES (Uncommon Items) ===
+  # Better Building Materials
+  - "CHORUS_FRUIT:6:STONE_BRICKS:24:§aStone Bricks:uncommon:2"
+  - "CHORUS_FRUIT:8:OAK_PLANKS:48:§aOak Planks:uncommon:2"
+  - "CHORUS_FRUIT:7:LADDER:16:§aLadders:uncommon:2"
+  - "CHORUS_FRUIT:5:SCAFFOLDING:24:§aScaffolding:uncommon:2"
+
+  # Useful Tools & Items
+  - "CHORUS_FRUIT:10:BUCKET:2:§aBuckets:uncommon:2"
+  - "CHORUS_FRUIT:12:GOLDEN_CARROT:16:§aGolden Carrots:uncommon:2"
+  - "CHORUS_FRUIT:8:ARROW:64:§aArrow Bundle:uncommon:2"
+  - "CHORUS_FRUIT:9:EXPERIENCE_BOTTLE:8:§aXP Bottles:uncommon:2"
+
+  # End-Specific Items
+  - "CHORUS_FRUIT:14:END_ROD:12:§aEnd Rods:uncommon:2"
+  - "CHORUS_FRUIT:16:CHORUS_PLANT:8:§aChorus Plants:uncommon:2"
+
+  # === LEVEL 3 - QUALITY TRADES (Rare Items) ===
+  # Diamond Tools
+  - "CHORUS_FRUIT:20:DIAMOND_PICKAXE:1:§9Diamond Pickaxe:rare:3"
+  - "CHORUS_FRUIT:18:DIAMOND_SWORD:1:§9Diamond Sword:rare:3"
+  - "CHORUS_FRUIT:22:DIAMOND_AXE:1:§9Diamond Axe:rare:3"
+  - "CHORUS_FRUIT:16:DIAMOND_SHOVEL:1:§9Diamond Shovel:rare:3"
+
+  # Valuable Resources
+  - "CHORUS_FRUIT:25:DIAMOND:4:§9Diamonds:rare:3"
+  - "CHORUS_FRUIT:18:GOLD_INGOT:12:§9Gold Ingots:rare:3"
+  - "CHORUS_FRUIT:15:LAPIS_LAZULI:24:§9Lapis Lazuli:rare:3"
+  - "CHORUS_FRUIT:20:REDSTONE:48:§9Redstone Dust:rare:3"
+
+  # End Materials
+  - "CHORUS_FRUIT:24:SHULKER_SHELL:1:§9Shulker Shell:rare:3"
+  - "CHORUS_FRUIT:28:DRAGON_BREATH:2:§9Dragon Breath:rare:3"
+  - "CHORUS_FRUIT:22:END_CRYSTAL:1:§9End Crystal:rare:3"
+
+  # === LEVEL 4 - PREMIUM TRADES (Epic Items) ===
+  # Enchanted Books (Useful)
+  - "CHORUS_FRUIT:35:ENCHANTED_BOOK:1:§5Efficiency IV:epic:4"
+  - "CHORUS_FRUIT:40:ENCHANTED_BOOK:1:§5Unbreaking III:epic:4"
+  - "CHORUS_FRUIT:45:ENCHANTED_BOOK:1:§5Fortune III:epic:4"
+  - "CHORUS_FRUIT:38:ENCHANTED_BOOK:1:§5Silk Touch:epic:4"
+  - "CHORUS_FRUIT:42:ENCHANTED_BOOK:1:§5Looting III:epic:4"
+
+  # Rare Equipment
+  - "CHORUS_FRUIT:50:ELYTRA:1:§5Elytra Wings:epic:4"
+  - "CHORUS_FRUIT:35:TRIDENT:1:§5Trident:epic:4"
+  - "CHORUS_FRUIT:30:SHIELD:1:§5Shield:epic:4"
+
+  # Special Items
+  - "CHORUS_FRUIT:55:TOTEM_OF_UNDYING:1:§5Totem of Undying:epic:4"
+  - "CHORUS_FRUIT:48:BEACON:1:§5Beacon:epic:4"
+  - "CHORUS_FRUIT:32:ENDER_CHEST:1:§5Ender Chest:epic:4"
+
+  # === LEVEL 5 - ELITE TRADES (Legendary Items) ===
+  # Powerful Enchanted Books
+  - "CHORUS_FRUIT:60:ENCHANTED_BOOK:1:§6Mending:legendary:5"
+  - "CHORUS_FRUIT:70:ENCHANTED_BOOK:1:§6Sharpness V:legendary:5"
+  - "CHORUS_FRUIT:65:ENCHANTED_BOOK:1:§6Protection IV:legendary:5"
+  - "CHORUS_FRUIT:58:ENCHANTED_BOOK:1:§6Feather Falling IV:legendary:5"
+
+  # Netherite Materials
+  - "CHORUS_FRUIT:80:NETHERITE_SCRAP:2:§6Netherite Scraps:legendary:5"
+  - "CHORUS_FRUIT:120:NETHERITE_INGOT:1:§6Netherite Ingot:legendary:5"
+
+  # Ultra Rare Items
+  - "CHORUS_FRUIT:85:NETHER_STAR:1:§6Nether Star:legendary:5"
+  - "CHORUS_FRUIT:75:WITHER_SKELETON_SKULL:1:§6Wither Skull:legendary:5"
+  - "CHORUS_FRUIT:90:ENCHANTED_GOLDEN_APPLE:1:§6God Apple:legendary:5"
+
+  # === LEVEL 6 - MASTER TRADES (Mythic Items) ===
+  # Top-Tier Enchanted Books
+  - "CHORUS_FRUIT:100:ENCHANTED_BOOK:1:§cSweeping Edge III:mythic:6"
+  - "CHORUS_FRUIT:95:ENCHANTED_BOOK:1:§cThorns III:mythic:6"
+  - "CHORUS_FRUIT:110:ENCHANTED_BOOK:1:§cFrost Walker II:mythic:6"
+  - "CHORUS_FRUIT:105:ENCHANTED_BOOK:1:§cChanneling:mythic:6"
+
+  # Netherite Equipment
+  - "CHORUS_FRUIT:150:NETHERITE_SWORD:1:§cNetherite Sword:mythic:6"
+  - "CHORUS_FRUIT:160:NETHERITE_PICKAXE:1:§cNetherite Pickaxe:mythic:6"
+  - "CHORUS_FRUIT:140:NETHERITE_AXE:1:§cNetherite Axe:mythic:6"
+
+  # Exclusive Items
+  - "CHORUS_FRUIT:125:HEART_OF_THE_SEA:1:§cHeart of the Sea:mythic:6"
+  - "CHORUS_FRUIT:135:CONDUIT:1:§cConduit:mythic:6"
+
+  # === LEVEL 7 - GRANDMASTER TRADES (Mythic Items) ===
+  # Ultimate Enchanted Books
+  - "CHORUS_FRUIT:200:ENCHANTED_BOOK:1:§cMultishot:mythic:7"
+  - "CHORUS_FRUIT:180:ENCHANTED_BOOK:1:§cQuick Charge III:mythic:7"
+  - "CHORUS_FRUIT:220:ENCHANTED_BOOK:1:§cLoyalty III:mythic:7"
+  - "CHORUS_FRUIT:190:ENCHANTED_BOOK:1:§cRiptide III:mythic:7"
+
+  # Netherite Armor
+  - "CHORUS_FRUIT:180:NETHERITE_HELMET:1:§cNetherite Helmet:mythic:7"
+  - "CHORUS_FRUIT:200:NETHERITE_CHESTPLATE:1:§cNetherite Chestplate:mythic:7"
+  - "CHORUS_FRUIT:190:NETHERITE_LEGGINGS:1:§cNetherite Leggings:mythic:7"
+  - "CHORUS_FRUIT:170:NETHERITE_BOOTS:1:§cNetherite Boots:mythic:7"
+
+  # === LEVEL 8 - LEGENDARY MASTER TRADES (Divine Items) ===
+  # Ultimate Rare Items
+  - "CHORUS_FRUIT:300:DRAGON_HEAD:1:§bDragon Head:divine:8"
+  - "CHORUS_FRUIT:250:DRAGON_EGG:1:§bDragon Egg:divine:8"
+  - "CHORUS_FRUIT:280:RECOVERY_COMPASS:1:§bRecovery Compass:divine:8"
+  - "CHORUS_FRUIT:350:ECHO_SHARD:2:§bEcho Shards:divine:8"
+
+  # Music Discs (Collector Items)
+  - "CHORUS_FRUIT:200:MUSIC_DISC_PIGSTEP:1:§bPigstep Disc:divine:8"
+  - "CHORUS_FRUIT:180:MUSIC_DISC_OTHERSIDE:1:§bOtherside Disc:divine:8"
+  - "CHORUS_FRUIT:220:DISC_FRAGMENT_5:1:§bDisc Fragment:divine:8"
+
+# Seasonal/Special Trades (Holiday events, etc.)
+seasonal_trades:
+  # Halloween Special (October)
+  halloween:
+    - "CHORUS_FRUIT:13:JACK_O_LANTERN:4:§6Spooky Lanterns:epic:1"
+    - "CHORUS_FRUIT:20:WITHER_SKELETON_SKULL:1:§6Spooky Skull:legendary:2"
+
+  # Winter Special (December-January)
+  winter:
+    - "CHORUS_FRUIT:15:SNOW_BLOCK:16:§bSnow Blocks:rare:1"
+    - "CHORUS_FRUIT:8:ICE:12:§bIce Blocks:uncommon:1"
+
+  # Spring Special (March-May)
+  spring:
+    - "CHORUS_FRUIT:6:SUNFLOWER:8:§eSunflowers:uncommon:1"
+    - "CHORUS_FRUIT:4:BONE_MEAL:16:§aGrowth Powder:common:1"
+
+# Custom/Administrative Trades
+custom_trades:
+  # Building Essentials
+  - "CHORUS_FRUIT:1:DIRT:64:§fDirt Stack:common:1"
+  - "CHORUS_FRUIT:2:SAND:32:§fSand Pile:common:1"
+  - "CHORUS_FRUIT:3:GRAVEL:24:§fGravel Pile:common:1"
+  - "CHORUS_FRUIT:4:CLAY:16:§fClay Blocks:common:1"
+
+  # Food Variety
+  - "CHORUS_FRUIT:5:BREAD:12:§fBread Loaves:common:1"
+  - "CHORUS_FRUIT:6:COOKED_BEEF:8:§fCooked Beef:common:1"
+  - "CHORUS_FRUIT:7:CAKE:2:§aCakes:uncommon:2"
+  - "CHORUS_FRUIT:8:GOLDEN_APPLE:1:§aGolden Apple:uncommon:2"
+
+  # Redstone Components
+  - "CHORUS_FRUIT:10:REDSTONE_TORCH:16:§aRedstone Torches:uncommon:2"
+  - "CHORUS_FRUIT:12:REPEATER:8:§aRepeaters:uncommon:2"
+  - "CHORUS_FRUIT:14:COMPARATOR:4:§aComparators:uncommon:2"
+  - "CHORUS_FRUIT:16:PISTON:6:§apistons:uncommon:2"
+
+  # Decorative Items
+  - "CHORUS_FRUIT:8:PAINTING:3:§aPaintings:uncommon:2"
+  - "CHORUS_FRUIT:6:ITEM_FRAME:8:§aItem Frames:uncommon:2"
+  - "CHORUS_FRUIT:10:FLOWER_POT:6:§aFlower Pots:uncommon:2"
+
+  # Transportation
+  - "CHORUS_FRUIT:15:MINECART:2:§aMinecarts:uncommon:2"
+  - "CHORUS_FRUIT:18:POWERED_RAIL:8:§aPowered Rails:uncommon:2"
+  - "CHORUS_FRUIT:12:DETECTOR_RAIL:6:§aDetector Rails:uncommon:2"
+  - "CHORUS_FRUIT:25:SADDLE:1:§9Saddle:rare:3"
+
+# Advanced Trading Features
+advanced_features:
+  # Bulk discount system
+  bulk_discounts:
+    enabled: true
+    # 5% discount for buying 10+ of same item
+    tier_1:
+      quantity: 10
+      discount: 0.05
+    # 10% discount for buying 25+ of same item
+    tier_2:
+      quantity: 25
+      discount: 0.10
+    # 15% discount for buying 50+ of same item
+    tier_3:
+      quantity: 50
+      discount: 0.15
+
+  # Reputation system
+  reputation:
+    enabled: true
+    # Reputation affects prices and unlocks special trades
+    levels:
+      stranger: 0      # Default reputation
+      acquaintance: 25 # 5% price reduction
+      friend: 75       # 10% price reduction + special trades
+      trusted: 150     # 15% price reduction + rare trades
+      honored: 300     # 20% price reduction + exclusive trades
+
+  # Special trader variants
+  trader_variants:
+    # Master Trader (rare spawn, better trades)
+    master_trader:
+      spawn_chance: 0.10  # 10% of trading endermen
+      level_bonus: 2      # Starts 2 levels higher
+      price_reduction: 0.25 # 25% cheaper trades
+
+    # Traveling Merchant (very rare, unique items)
+    traveling_merchant:
+      spawn_chance: 0.02  # 2% of trading endermen
+      unique_trades: true
+      despawn_time: 600   # Despawns after 10 minutes
+
+# GUI Customization
+gui_settings:
+  # Main trading interface
+  trading_interface:
+    title: "§5⫸ Trading Enderman Lv.%level% ⫷"
+    size: 54
+
+    # Slot layout
+    trade_slots: [10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43]
+    info_slot: 4
+    currency_info_slot: 48
+    close_slot: 49
+
+    # Visual elements
+    border_item: "PURPLE_STAINED_GLASS_PANE"
+    background_item: "BLACK_STAINED_GLASS_PANE"
+
+  # Trade item appearance
+  trade_item_format:
+    name: "%rarity_color%%display_name%"
+    lore:
+      - "§8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+      - "§7Cost: §e%input_amount%x %input_material%"
+      - "§7Reward: §a%output_amount%x %output_material%"
+      - "§7Rarity: %rarity_color%%rarity%"
+      - "§7Required Level: §b%required_level%"
+      - "§8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+      - "§6§l⚡ Click to Trade! ⚡"
+
+# Audio/Visual Effects
+effects:
+  # Sound effects
+  sounds:
+    menu_open: "BLOCK_ENDERCHEST_OPEN"
+    trade_success: "ENTITY_EXPERIENCE_ORB_PICKUP"
+    trade_fail: "ENTITY_VILLAGER_NO"
+    level_up: "ENTITY_PLAYER_LEVELUP"
+    trader_angry: "ENTITY_ENDERMAN_SCREAM"
+    rare_trade: "ENTITY_ENDER_DRAGON_AMBIENT"
+
+  # Particle effects
+  particles:
+    trader_idle: ["ENCHANT", "END_ROD", "PORTAL"]
+    level_up: ["FIREWORK", "TOTEM_OF_UNDYING", "END_ROD"]
+    rare_trade: ["DRAGON_BREATH", "ENCHANT", "SPELL_WITCH"]
+    angry: ["ANGRY_VILLAGER", "LARGE_SMOKE"]
+
+# Performance & Limits
+performance:
+  # Maximum concurrent trades per player
+  max_concurrent_trades: 3
+
+  # Trade processing limits
+  max_trades_per_tick: 5
+  max_traders_per_chunk: 2
+
+  # Memory management
+  cleanup_interval: 300 # Clean up every 5 minutes
+  trader_timeout: 1800  # Remove inactive traders after 30 minutes
+
+  # Anti-spam protection
+  min_trade_interval: 1 # Minimum 1 second between trades
+
+# Debug and Logging
+debug:
+  # Detailed logging options
+  log_trades: true
+  log_spawning: true
+  log_leveling: true
+  log_economy: false
+  log_reputation: false
+
+  # Performance monitoring
+  monitor_performance: true
+  warn_slow_trades: true
+
+  # Testing features
+  enable_test_commands: false
+  allow_manual_spawning: false
+
+# Version and Compatibility
+config_info:
+  version: 2.0
+  last_updated: "2025-01-27"
+  compatible_versions: ["1.20+", "1.21+"]
+
+# Economy Balance Notes
+balance_notes: |
+  This configuration is designed for balanced End-game trading:
+  
+  Early Levels (1-2): Focus on basic building materials and common resources
+  Mid Levels (3-4): Introduce valuable tools and rare materials  
+  High Levels (5-6): Expensive enchanted books and netherite items
+  Master Levels (7-8): Ultimate rare items and collector pieces
+  
+  Pricing Philosophy:
+  - Common items: 1-10 Chorus Fruit
+  - Uncommon items: 5-20 Chorus Fruit  
+  - Rare items: 15-50 Chorus Fruit
+  - Epic items: 30-100 Chorus Fruit
+  - Legendary items: 60-200 Chorus Fruit
+  - Mythic items: 100-300 Chorus Fruit
+  - Divine items: 200-400 Chorus Fruit
+  
+  This creates a meaningful progression where players need to invest
+  significant time to reach the highest tier trades.

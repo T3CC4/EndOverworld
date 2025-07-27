@@ -1,0 +1,46 @@
+name: EndOverworld
+version: 1.0.0
+description: Makes the End the new Overworld with vanilla-friendly modifications
+author: Tecca
+main: de.tecca.endOverworld.EndOverworld
+api-version: 1.21
+
+# Soft dependencies for better compatibility (only actual plugins)
+softdepend: [WorldEdit, Multiverse-Core]
+
+# Commands
+commands:
+  ancientsite:
+    description: Teleport to and manage Ancient Sites in the End
+    usage: /ancientsite <tp|list|nearest|random|info|stats> [args]
+    aliases: [asite, ancient]
+    permission: endoverworld.ancientsite
+    permission-message: "§c❌ You don't have permission to use Ancient Site commands!"
+
+# Permissions
+permissions:
+  endoverworld.ancientsite:
+    description: Access to Ancient Site teleportation and management commands
+    default: true
+    children:
+      endoverworld.ancientsite.tp: true
+      endoverworld.ancientsite.list: true
+      endoverworld.ancientsite.info: true
+
+  endoverworld.ancientsite.tp:
+    description: Teleport to Ancient Sites
+    default: true
+
+  endoverworld.ancientsite.list:
+    description: List all discovered Ancient Sites
+    default: true
+
+  endoverworld.ancientsite.info:
+    description: Get information about Ancient Sites
+    default: true
+
+  endoverworld.admin:
+    description: Access to admin features, debug info, and statistics
+    default: op
+    children:
+      endoverworld.ancientsite: true

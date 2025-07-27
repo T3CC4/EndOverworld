@@ -1,0 +1,193 @@
+# EndOverworld Plugin Configuration
+# This plugin transforms the End dimension into an overworld-like experience
+
+# World Generation Settings
+world:
+  # Enable custom End terrain generation
+  custom-generation: true
+
+  # Distance from main island (0,0) before generating custom terrain
+  generation-distance: 1000
+
+  # Island generation settings
+  islands:
+    min-height: 55
+    max-height: 75
+    flat-platform-chance: 5  # Percentage chance for building platforms
+    chorus-plant-chance: 7   # Percentage chance for chorus plants
+
+  # Overworld debris settings
+  debris:
+    enabled: true
+    spawn-chance: 3  # Percentage chance per chunk
+    max-size: 3      # Maximum radius of debris patches
+
+# End City Villager Settings
+villagers:
+  # Enable End City villager spawning
+  enabled: true
+
+  # Number of villagers per End City (min-max)
+  min-villagers: 1
+  max-villagers: 2
+
+  # Distance before villagers are returned to spawn
+  max-wander-distance: 15
+
+  # How often to check for wandering villagers (in ticks)
+  return-check-interval: 6000  # 5 minutes
+
+  # Custom villager names organized by profession
+  names:
+    # Librarian names (Ancient knowledge keepers)
+    librarian:
+      - "§5End Scholar"
+      - "§5Void Chronicler"
+      - "§5Ancient Scribe"
+      - "§5Knowledge Keeper"
+      - "§5Tome Guardian"
+      - "§5Lore Master"
+      - "§5Archive Warden"
+      - "§5Memory Keeper"
+      - "§5Wisdom Seeker"
+      - "§5Text Sage"
+      - "§5Script Walker"
+      - "§5Book Whisperer"
+      - "§5History Weaver"
+      - "§5Tale Spinner"
+      - "§5Word Smith"
+
+    # Cleric names (Mystical healers)
+    cleric:
+      - "§5Void Priest"
+      - "§5End Healer"
+      - "§5Shadow Cleric"
+      - "§5Rift Monk"
+      - "§5Chorus Mystic"
+      - "§5Void Oracle"
+      - "§5End Prophet"
+      - "§5Dark Chaplain"
+      - "§5Dimension Monk"
+      - "§5Portal Priest"
+      - "§5Void Blessed"
+      - "§5End Saint"
+      - "§5Shadow Vicar"
+      - "§5Rift Shaman"
+      - "§5Void Medic"
+
+    # Cartographer names (End dimension mappers)
+    cartographer:
+      - "§5Portal Sage"
+      - "§5Void Navigator"
+      - "§5End Mapper"
+      - "§5Rift Surveyor"
+      - "§5Dimension Guide"
+      - "§5Path Finder"
+      - "§5Void Compass"
+      - "§5End Explorer"
+      - "§5Portal Scout"
+      - "§5Realm Walker"
+      - "§5Territory Sage"
+      - "§5Boundary Keeper"
+      - "§5Route Master"
+      - "§5Void Cartographer"
+      - "§5End Wayfinder"
+
+    # Toolsmith names (End material crafters)
+    toolsmith:
+      - "§5Shadow Merchant"
+      - "§5Void Crafter"
+      - "§5End Smith"
+      - "§5Chorus Keeper"
+      - "§5Rift Forger"
+      - "§5Tool Master"
+      - "§5End Artisan"
+      - "§5Void Builder"
+      - "§5Shadow Smith"
+      - "§5Portal Wright"
+      - "§5Dimension Crafter"
+      - "§5End Tinkerer"
+      - "§5Void Mechanic"
+      - "§5Rift Engineer"
+      - "§5Shadow Maker"
+
+    # Generic names (fallback for any profession)
+    generic:
+      - "§5End Dweller"
+      - "§5Rift Walker"
+      - "§5Void Wanderer"
+      - "§5Shadow Traveler"
+      - "§5End Nomad"
+      - "§5Portal Drifter"
+      - "§5Void Seeker"
+      - "§5End Pilgrim"
+      - "§5Dimension Exile"
+      - "§5Chorus Wanderer"
+      - "§5Void Hermit"
+      - "§5End Stranger"
+      - "§5Shadow Refugee"
+      - "§5Portal Outcast"
+      - "§5Void Survivor"
+      - "§5End Migrant"
+      - "§5Rift Refugee"
+      - "§5Shadow Settler"
+      - "§5Void Resident"
+      - "§5End Citizen"
+      - "§5Portal Inhabitant"
+      - "§5Dimension Dweller"
+      - "§5Chorus Villager"
+      - "§5End Folk"
+      - "§5Void Native"
+
+# Structure Detection Settings
+structures:
+  # Enable automatic End City detection
+  auto-detect: true
+
+  # Delay before processing chunks (in ticks)
+  processing-delay: 20  # 1 second
+
+  # Search radius around Shulkers for safe spawn locations
+  search-radius: 10
+
+  # Enable chunk processing tracking
+  track-processed-chunks: true
+
+# Debug and Logging Settings
+debug:
+  # Enable verbose logging
+  verbose: false
+
+  # Log villager creation
+  log-villager-creation: true
+
+  # Log structure detection
+  log-structure-detection: true
+
+  # Log world generation
+  log-world-generation: false
+
+# Performance Settings
+performance:
+  # Maximum chunks to process per server tick
+  max-chunks-per-tick: 1
+
+  # Enable async chunk processing where possible
+  async-processing: true
+
+  # Cleanup interval for invalid entities (in ticks)
+  cleanup-interval: 12000  # 10 minutes
+
+# Compatibility Settings
+compatibility:
+  # Enable Nullscape datapack compatibility
+  nullscape-support: true
+
+  # Enable other End modification support
+  custom-terrain-support: true
+
+  # Check for custom materials/mods
+  check-custom-materials: true
+
+# Version (do not modify)
+config-version: 1
