@@ -22,12 +22,15 @@ public class EndOverworld extends JavaPlugin {
     private RecipeManager recipeManager;
     private TradingManager tradingManager;
     private StructureManager structureManager;
-    private AncientEndManager ancientEndManager;  // Added Ancient End Manager
+    private AncientEndManager ancientEndManager;
 
     // Mechanics
     private BlockMechanics blockMechanics;
     private FoodMechanics foodMechanics;
     private MobBehavior mobBehavior;
+
+    // Post Processing
+    private EndPostProcessor postProcessor;
 
     // Configuration
     private FileConfiguration traderConfig;
@@ -43,6 +46,9 @@ public class EndOverworld extends JavaPlugin {
         // Initialize mechanics
         initializeMechanics();
 
+        // Initialize post-processor
+        initializePostProcessor();
+
         // Register all event listeners
         registerEventListeners();
 
@@ -52,11 +58,9 @@ public class EndOverworld extends JavaPlugin {
         // Validate configurations
         validateConfigurations();
 
-        EndPostProcessor postProcessor = new EndPostProcessor(this);
-        getServer().getPluginManager().registerEvents(postProcessor, this);
-
-        getLogger().info("EndOverworld plugin enabled with modular structure!");
+        getLogger().info("EndOverworld plugin enabled!");
         getLogger().info("Features: End City Villagers, Trading Endermen, Chorus Sprites, Enhanced Mechanics, Ancient End Sites");
+        getLogger().info("Using vanilla End generation with targeted End City post-processing");
     }
 
     @Override
@@ -68,6 +72,10 @@ public class EndOverworld extends JavaPlugin {
 
         if (ancientEndManager != null) {
             ancientEndManager.cleanup();
+        }
+
+        if (worldManager != null) {
+            worldManager.cleanup();
         }
 
         getLogger().info("EndOverworld plugin disabled!");
@@ -93,13 +101,19 @@ public class EndOverworld extends JavaPlugin {
         recipeManager = new RecipeManager(this);
         tradingManager = new TradingManager(this);
         structureManager = new StructureManager(this);
-        ancientEndManager = new AncientEndManager(this);  // Initialize Ancient End Manager
+        ancientEndManager = new AncientEndManager(this);
     }
 
     private void initializeMechanics() {
         blockMechanics = new BlockMechanics(this);
         foodMechanics = new FoodMechanics(this);
         mobBehavior = new MobBehavior(this, tradingManager);
+    }
+
+    private void initializePostProcessor() {
+        postProcessor = new EndPostProcessor(this);
+        getServer().getPluginManager().registerEvents(postProcessor, this);
+        getLogger().info("End City post-processor initialized - will only affect End Cities");
     }
 
     private void registerEventListeners() {
@@ -110,7 +124,7 @@ public class EndOverworld extends JavaPlugin {
         getServer().getPluginManager().registerEvents(foodMechanics, this);
         getServer().getPluginManager().registerEvents(mobBehavior, this);
         getServer().getPluginManager().registerEvents(structureManager, this);
-        getServer().getPluginManager().registerEvents(ancientEndManager, this);  // Register Ancient End Manager events
+        getServer().getPluginManager().registerEvents(ancientEndManager, this);
     }
 
     private void registerCommands() {
@@ -131,6 +145,7 @@ public class EndOverworld extends JavaPlugin {
         getLogger().info("Block Mechanics: " + (blockMechanics != null ? "ENABLED" : "DISABLED"));
         getLogger().info("Enhanced Food: " + (foodMechanics != null ? "ENABLED" : "DISABLED"));
         getLogger().info("Ancient End Sites: " + (ancientEndManager != null ? "ENABLED" : "DISABLED"));
+        getLogger().info("End City Post-Processing: " + (postProcessor != null ? "ENABLED" : "DISABLED"));
     }
 
     // Getters for managers (for cross-manager communication)
@@ -141,11 +156,13 @@ public class EndOverworld extends JavaPlugin {
     public RecipeManager getRecipeManager() { return recipeManager; }
     public TradingManager getTradingManager() { return tradingManager; }
     public StructureManager getStructureManager() { return structureManager; }
-    public AncientEndManager getAncientEndManager() { return ancientEndManager; }  // Added getter
+    public AncientEndManager getAncientEndManager() { return ancientEndManager; }
 
     public BlockMechanics getBlockMechanics() { return blockMechanics; }
     public FoodMechanics getFoodMechanics() { return foodMechanics; }
     public MobBehavior getMobBehavior() { return mobBehavior; }
+
+    public EndPostProcessor getPostProcessor() { return postProcessor; }
 
     public FileConfiguration getTraderConfig() { return traderConfig; }
 }
