@@ -4,6 +4,7 @@ import de.tecca.endOverworld.commands.AncientSiteCommand;
 import de.tecca.endOverworld.managers.*;
 import de.tecca.endOverworld.mechanics.*;
 import de.tecca.endOverworld.trading.TradingManager;
+import de.tecca.endOverworld.world.EndPostProcessor;
 import de.tecca.endOverworld.world.StructureManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -50,6 +51,9 @@ public class EndOverworld extends JavaPlugin {
 
         // Validate configurations
         validateConfigurations();
+
+        EndPostProcessor postProcessor = new EndPostProcessor(this);
+        getServer().getPluginManager().registerEvents(postProcessor, this);
 
         getLogger().info("EndOverworld plugin enabled with modular structure!");
         getLogger().info("Features: End City Villagers, Trading Endermen, Chorus Sprites, Enhanced Mechanics, Ancient End Sites");

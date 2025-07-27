@@ -1,5 +1,7 @@
 package de.tecca.endOverworld.world;
 
+import de.tecca.endOverworld.EndOverworld;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
@@ -8,218 +10,224 @@ import org.bukkit.util.noise.SimplexOctaveGenerator;
 import java.util.Random;
 
 /**
- * Custom chunk generator for End with enhanced terrain generation
- * Compatible with Nullscape and other End modifications
+ * Post-processing End generator - lets Minecraft/datapacks generate, then applies our changes
  */
 public class EndOverworldGenerator extends ChunkGenerator {
 
-    private static final int MAIN_ISLAND_RADIUS = 1000;
-    private static final int MIN_ISLAND_HEIGHT = 55;
-    private static final int MAX_ISLAND_HEIGHT = 75;
-
-    // Materials for overworld debris
-    private static final Material[] OVERWORLD_MATERIALS = {
-            Material.GRASS_BLOCK, Material.DIRT, Material.STONE,
-            Material.OAK_LOG, Material.COBBLESTONE, Material.SAND
-    };
+    private SimplexOctaveGenerator corruptionNoise;
+    private SimplexOctaveGenerator enhancementNoise;
+    private EndOverworld plugin;
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biome) {
+        // Let Minecraft/datapacks do their work first - return empty chunk for now
         ChunkData chunk = createChunkData(world);
 
-        // Check if we should generate terrain here
-        if (shouldGenerateInChunk(chunkX, chunkZ)) {
-            generateEndTerrain(chunk, random, chunkX, chunkZ);
-
-            // Add overworld debris occasionally
-            if (random.nextInt(100) < 3) { // 3% chance
-                generateOverworldDebris(chunk, random);
-            }
+        // Initialize noise if needed
+        if (corruptionNoise == null) {
+            initializeNoiseGenerators(world.getSeed());
         }
 
-        return chunk;
+        // Schedule post-processing after chunk is populated
+        schedulePostProcessing(world, chunkX, chunkZ);
+
+        return chunk; // Empty chunk - let vanilla/datapacks fill it
     }
 
-    @Override
-    public boolean shouldGenerateStructures() {
-        return true; // Allow End cities and other structures
+    private void initializeNoiseGenerators(long seed) {
+        Random noiseRandom = new Random(seed);
+
+        // Corruption zones
+        corruptionNoise = new SimplexOctaveGenerator(new Random(noiseRandom.nextLong()), 4);
+        corruptionNoise.setScale(0.008D);
+
+        // Enhancement zones
+        enhancementNoise = new SimplexOctaveGenerator(new Random(noiseRandom.nextLong()), 3);
+        enhancementNoise.setScale(0.02D);
     }
 
-    @Override
-    public boolean shouldGenerateMobs() {
-        return true; // Allow mob spawning
-    }
-
-    @Override
-    public boolean shouldGenerateDecorations() {
-        return true; // Allow decorations like chorus plants
-    }
-
-    /**
-     * Determines if we should generate terrain in this chunk
-     */
-    private boolean shouldGenerateInChunk(int chunkX, int chunkZ) {
-        int worldX = chunkX * 16;
-        int worldZ = chunkZ * 16;
-
-        // Don't generate too close to main dragon island (0,0)
-        double distanceFromCenter = Math.sqrt(worldX * worldX + worldZ * worldZ);
-        return distanceFromCenter > MAIN_ISLAND_RADIUS;
+    private void schedulePostProcessing(World world, int chunkX, int chunkZ) {
+        // Use Bukkit scheduler to process chunk after it's fully populated
+        Bukkit.getScheduler().runTaskLater(
+                plugin != null ? plugin : getPluginFromWorld(world),
+                () -> postProcessChunk(world, chunkX, chunkZ),
+                5L // Wait 5 ticks for population to complete
+        );
     }
 
     /**
-     * Generates End terrain with islands and flat areas
+     * Fallback method to get plugin instance from world if not set
      */
-    private void generateEndTerrain(ChunkData chunk, Random random, int chunkX, int chunkZ) {
-        SimplexOctaveGenerator generator = new SimplexOctaveGenerator(new Random(chunkX * 341873128712L + chunkZ * 132897987541L), 4);
-        generator.setScale(0.005D);
+    private EndOverworld getPluginFromWorld(World world) {
+        // Try to get our plugin instance
+        return (EndOverworld) Bukkit.getPluginManager().getPlugin("EndOverworld");
+    }
+
+    /**
+     * Post-process the chunk after vanilla/datapack generation is complete
+     */
+    private void postProcessChunk(World world, int chunkX, int chunkZ) {
+        // Skip if chunk is unloaded
+        if (!world.isChunkLoaded(chunkX, chunkZ)) return;
+
+        // Skip main dragon area
+        if (isNearMainIsland(chunkX, chunkZ)) return;
+
+        org.bukkit.Chunk chunk = world.getChunkAt(chunkX, chunkZ);
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
                 int worldX = chunkX * 16 + x;
                 int worldZ = chunkZ * 16 + z;
 
-                // Generate noise for island formation
-                double noise = generator.noise(worldX, worldZ, 0.5D, 0.5D);
-                double heightNoise = generator.noise(worldX, worldZ, 0.8D, 0.8D);
+                // Calculate our enhancement values
+                double corruption = corruptionNoise.noise(worldX, worldZ, 0.5D, 0.5D);
+                double enhancement = enhancementNoise.noise(worldX, worldZ, 0.5D, 0.5D);
 
-                // Create islands based on noise
-                if (noise > 0.25D) {
-                    int baseHeight = MIN_ISLAND_HEIGHT + (int)(heightNoise * (MAX_ISLAND_HEIGHT - MIN_ISLAND_HEIGHT));
-                    generateIslandAt(chunk, x, z, baseHeight, random, noise);
-                }
+                // Normalize to 0-1
+                corruption = (corruption + 1.0) / 2.0;
+                enhancement = (enhancement + 1.0) / 2.0;
+
+                // Process this column
+                processExistingColumn(chunk, x, z, corruption, enhancement);
             }
         }
     }
 
-    /**
-     * Generates an island at the specified location
-     */
-    private void generateIslandAt(ChunkData chunk, int x, int z, int height, Random random, double density) {
-        // Calculate island thickness based on density
-        int thickness = 3 + (int)(density * 8);
-
-        // Generate the main island structure
-        for (int y = Math.max(1, height - thickness); y <= height; y++) {
-            // Make edges more jagged and natural
-            double edgeNoise = random.nextGaussian() * 0.1;
-            if (density + edgeNoise > 0.3) {
-                chunk.setBlock(x, y, z, Material.END_STONE);
-            }
-        }
-
-        // Add supporting pillars to prevent floating islands
-        if (density > 0.4 && random.nextDouble() < 0.7) {
-            generateSupportPillar(chunk, x, z, height - thickness, random);
-        }
-
-        // Create flat areas suitable for building and beds
-        if (density > 0.6 && random.nextInt(20) == 0) {
-            createBuildingPlatform(chunk, x, z, height + 1, random);
-        }
-
-        // Add chorus plants occasionally
-        if (random.nextInt(15) == 0 && height < MAX_ISLAND_HEIGHT - 5) {
-            addChorusPlant(chunk, x, z, height + 1, random);
-        }
+    private boolean isNearMainIsland(int chunkX, int chunkZ) {
+        int worldX = chunkX * 16;
+        int worldZ = chunkZ * 16;
+        double distance = Math.sqrt(worldX * worldX + worldZ * worldZ);
+        return distance < 1000;
     }
 
     /**
-     * Generates a support pillar to make islands look more natural
+     * Process existing terrain in the column
      */
-    private void generateSupportPillar(ChunkData chunk, int x, int z, int startHeight, Random random) {
-        int pillarHeight = 5 + random.nextInt(15);
+    private void processExistingColumn(org.bukkit.Chunk chunk, int x, int z, double corruption, double enhancement) {
+        // Scan the column for existing blocks
+        for (int y = 40; y <= 100; y++) {
+            org.bukkit.block.Block block = chunk.getBlock(x, y, z);
+            Material current = block.getType();
 
-        for (int y = Math.max(1, startHeight - pillarHeight); y < startHeight; y++) {
-            if (random.nextDouble() < 0.8) { // 80% chance for each block
-                chunk.setBlock(x, y, z, Material.END_STONE);
-            }
-        }
-    }
+            // Skip air blocks
+            if (current == Material.AIR) continue;
 
-    /**
-     * Creates a flat platform suitable for building
-     */
-    private void createBuildingPlatform(ChunkData chunk, int centerX, int centerZ, int height, Random random) {
-        int size = 3 + random.nextInt(4); // 3-6 blocks
-        int radius = size / 2;
-
-        for (int x = centerX - radius; x <= centerX + radius; x++) {
-            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                if (isValidChunkCoordinate(x, z)) {
-                    // Ensure solid ground
-                    chunk.setBlock(x, height - 1, z, Material.END_STONE);
-
-                    // Clear space above for building
-                    for (int y = height; y <= height + 3; y++) {
-                        chunk.setBlock(x, y, z, Material.AIR);
-                    }
-
-                    // Occasionally add End stone bricks for a more finished look
-                    if (random.nextInt(8) == 0) {
-                        chunk.setBlock(x, height - 1, z, Material.END_STONE_BRICKS);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Adds chorus plants to the terrain
-     */
-    private void addChorusPlant(ChunkData chunk, int x, int z, int height, Random random) {
-        if (!isValidChunkCoordinate(x, z)) return;
-
-        // Place chorus flower
-        chunk.setBlock(x, height, z, Material.CHORUS_FLOWER);
-
-        // Occasionally add a small chorus plant structure
-        if (random.nextInt(3) == 0) {
-            int plantHeight = 2 + random.nextInt(3);
-            for (int y = 1; y <= plantHeight; y++) {
-                if (height + y < 120) { // Don't build too high
-                    chunk.setBlock(x, height + y, z, Material.CHORUS_PLANT);
+            // Apply corruption to existing blocks
+            if (corruption > 0.4) {
+                Material corrupted = applyCorruption(current, corruption);
+                if (corrupted != null && corrupted != current) {
+                    block.setType(corrupted);
                 }
             }
 
-            // Add flower on top
-            if (height + plantHeight + 1 < 120) {
-                chunk.setBlock(x, height + plantHeight + 1, z, Material.CHORUS_FLOWER);
+            // Add surface enhancements
+            if (current.isSolid() && enhancement > 0.6) {
+                addSurfaceEnhancements(chunk, x, y, z, enhancement);
             }
         }
     }
 
     /**
-     * Generates small patches of overworld materials as "debris"
+     * Apply corruption to existing materials
      */
-    private void generateOverworldDebris(ChunkData chunk, Random random) {
-        int debrisX = random.nextInt(16);
-        int debrisZ = random.nextInt(16);
-        int debrisY = MIN_ISLAND_HEIGHT + random.nextInt(20);
+    private Material applyCorruption(Material original, double intensity) {
+        // Only corrupt with reasonable probability
+        if (Math.random() > intensity * 0.4) return null;
 
-        Material debrisMaterial = OVERWORLD_MATERIALS[random.nextInt(OVERWORLD_MATERIALS.length)];
-        int debrisSize = 1 + random.nextInt(3); // 1-3 block radius
+        // Ancient corruption progression
+        switch (original) {
+            // Purpur corruption progression
+            case PURPUR_BLOCK:
+                if (intensity > 0.85) return Material.SCULK;
+                if (intensity > 0.7) return Material.DEEPSLATE_BRICKS;
+                if (intensity > 0.55) return Material.DEEPSLATE_TILES;
+                return Material.COBBLED_DEEPSLATE;
 
-        for (int x = -debrisSize; x <= debrisSize; x++) {
-            for (int z = -debrisSize; z <= debrisSize; z++) {
-                for (int y = 0; y <= debrisSize; y++) {
-                    int blockX = debrisX + x;
-                    int blockZ = debrisZ + z;
-                    int blockY = debrisY + y;
+            case PURPUR_PILLAR:
+                return intensity > 0.75 ? Material.REINFORCED_DEEPSLATE : Material.DEEPSLATE_TILES;
 
-                    if (isValidChunkCoordinate(blockX, blockZ) && blockY > 0 && blockY < 256) {
-                        // Use distance to create a more natural debris cluster
-                        double distance = Math.sqrt(x * x + z * z + y * y);
-                        if (distance <= debrisSize && random.nextDouble() < 0.6) {
-                            chunk.setBlock(blockX, blockY, blockZ, debrisMaterial);
+            case PURPUR_STAIRS:
+                return Material.DEEPSLATE_BRICK_STAIRS;
 
-                            // Add some grass or flowers on grass blocks
-                            if (debrisMaterial == Material.GRASS_BLOCK && y == debrisSize && random.nextBoolean()) {
-                                if (blockY + 1 < 256) {
-                                    Material decoration = random.nextBoolean() ? Material.SHORT_GRASS : Material.DANDELION;
-                                    chunk.setBlock(blockX, blockY + 1, blockZ, decoration);
-                                }
-                            }
+            case PURPUR_SLAB:
+                return Material.DEEPSLATE_BRICK_SLAB;
+
+            // End Stone corruption progression
+            case END_STONE_BRICKS:
+                if (intensity > 0.8) return Material.SCULK;
+                if (intensity > 0.6) return Material.DEEPSLATE_BRICKS;
+                return Material.COBBLED_DEEPSLATE;
+
+            case END_STONE_BRICK_STAIRS:
+                return Material.DEEPSLATE_BRICK_STAIRS;
+
+            case END_STONE_BRICK_SLAB:
+                return Material.DEEPSLATE_BRICK_SLAB;
+
+            case END_STONE_BRICK_WALL:
+                return Material.DEEPSLATE_BRICK_WALL;
+
+            case END_STONE:
+                if (intensity > 0.9) return Material.SCULK;
+                if (intensity > 0.7) return Material.DEEPSLATE;
+                if (intensity > 0.5) return Material.COBBLED_DEEPSLATE;
+                return null;
+
+            // Other materials
+            case OBSIDIAN:
+                return intensity > 0.85 ? Material.SCULK_CATALYST : null;
+
+            case STONE:
+                return intensity > 0.8 ? Material.DEEPSLATE : null;
+
+            case COBBLESTONE:
+                return intensity > 0.7 ? Material.COBBLED_DEEPSLATE : null;
+
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Add surface enhancements to existing terrain
+     */
+    private void addSurfaceEnhancements(org.bukkit.Chunk chunk, int x, int y, int z, double enhancement) {
+        org.bukkit.block.Block above = chunk.getBlock(x, y + 1, z);
+
+        // Only add features if there's air above
+        if (above.getType() != Material.AIR || y + 1 >= 256) return;
+
+        Random random = new Random((long)x * 341873128712L + (long)z * 132897987541L + y);
+
+        // Determine what to add based on enhancement strength
+        if (enhancement > 0.9 && random.nextDouble() < 0.05) {
+            // Rare building foundations
+            addBuildingFoundation(chunk, x, y + 1, z);
+        } else if (enhancement > 0.8 && random.nextDouble() < 0.08) {
+            // Sculk growth
+            addSculkGrowth(chunk, x, y + 1, z, random);
+        } else if (enhancement > 0.7 && random.nextDouble() < 0.12) {
+            // Vegetation
+            addVegetation(chunk, x, y + 1, z, random);
+        } else if (enhancement > 0.6 && random.nextDouble() < 0.03) {
+            // Overworld debris
+            addOverworldDebris(chunk, x, y + 1, z, random);
+        }
+    }
+
+    private void addBuildingFoundation(org.bukkit.Chunk chunk, int x, int y, int z) {
+        // Simple foundation marker
+        chunk.getBlock(x, y, z).setType(Material.END_STONE_BRICKS);
+
+        // Small 3x3 platform occasionally
+        if (Math.random() < 0.3) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    if (x + dx >= 0 && x + dx < 16 && z + dz >= 0 && z + dz < 16) {
+                        org.bukkit.block.Block platformBlock = chunk.getBlock(x + dx, y, z + dz);
+                        if (platformBlock.getType() == Material.AIR) {
+                            platformBlock.setType(Material.END_STONE_BRICKS);
                         }
                     }
                 }
@@ -227,17 +235,94 @@ public class EndOverworldGenerator extends ChunkGenerator {
         }
     }
 
-    /**
-     * Checks if coordinates are valid within a chunk
-     */
-    private boolean isValidChunkCoordinate(int x, int z) {
-        return x >= 0 && x < 16 && z >= 0 && z < 16;
+    private void addSculkGrowth(org.bukkit.Chunk chunk, int x, int y, int z, Random random) {
+        double growthType = random.nextDouble();
+
+        if (growthType < 0.1) {
+            chunk.getBlock(x, y, z).setType(Material.SCULK_CATALYST);
+        } else if (growthType < 0.3) {
+            Material sculkType = random.nextBoolean() ? Material.SCULK_SENSOR : Material.SCULK_SHRIEKER;
+            chunk.getBlock(x, y, z).setType(sculkType);
+        } else if (growthType < 0.7) {
+            chunk.getBlock(x, y, z).setType(Material.SCULK);
+        } else {
+            chunk.getBlock(x, y, z).setType(Material.SCULK_VEIN);
+        }
+
+        // Occasionally spread to adjacent blocks
+        if (random.nextDouble() < 0.4) {
+            spreadSculk(chunk, x, y, z, random);
+        }
     }
 
-    /**
-     * Gets information about this generator for debugging
-     */
+    private void spreadSculk(org.bukkit.Chunk chunk, int centerX, int centerY, int centerZ, Random random) {
+        int[] offsets = {-1, 0, 1};
+
+        for (int dx : offsets) {
+            for (int dz : offsets) {
+                if (dx == 0 && dz == 0) continue;
+
+                int newX = centerX + dx;
+                int newZ = centerZ + dz;
+
+                if (newX >= 0 && newX < 16 && newZ >= 0 && newZ < 16 && random.nextDouble() < 0.3) {
+                    org.bukkit.block.Block spreadBlock = chunk.getBlock(newX, centerY, newZ);
+                    if (spreadBlock.getType() == Material.AIR) {
+                        spreadBlock.setType(Material.SCULK_VEIN);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addVegetation(org.bukkit.Chunk chunk, int x, int y, int z, Random random) {
+        double vegType = random.nextDouble();
+
+        if (vegType < 0.4) {
+            // Chorus plant
+            chunk.getBlock(x, y, z).setType(Material.CHORUS_PLANT);
+            if (y + 1 < 256 && random.nextBoolean()) {
+                chunk.getBlock(x, y + 1, z).setType(Material.CHORUS_FLOWER);
+            }
+        } else if (vegType < 0.7) {
+            chunk.getBlock(x, y, z).setType(Material.CHORUS_FLOWER);
+        } else {
+            chunk.getBlock(x, y, z).setType(Material.DEAD_BUSH);
+        }
+    }
+
+    private void addOverworldDebris(org.bukkit.Chunk chunk, int x, int y, int z, Random random) {
+        Material[] debris = {
+                Material.DIRT, Material.GRASS_BLOCK, Material.STONE,
+                Material.OAK_LOG, Material.COBBLESTONE, Material.SAND
+        };
+
+        Material debrisType = debris[random.nextInt(debris.length)];
+        chunk.getBlock(x, y, z).setType(debrisType);
+
+        // Add vegetation on grass blocks
+        if (debrisType == Material.GRASS_BLOCK && y + 1 < 256 && random.nextBoolean()) {
+            Material vegetation = random.nextBoolean() ? Material.SHORT_GRASS : Material.DANDELION;
+            chunk.getBlock(x, y + 1, z).setType(vegetation);
+        }
+    }
+
+    @Override
+    public boolean shouldGenerateStructures() {
+        return true; // Let vanilla/datapacks handle structures
+    }
+
+    @Override
+    public boolean shouldGenerateMobs() {
+        return true; // Let vanilla/datapacks handle mobs
+    }
+
+    @Override
+    public boolean shouldGenerateDecorations() {
+        return true; // Let vanilla/datapacks handle decorations
+    }
+
     public String getGeneratorInfo() {
-        return "EndOverworldGenerator v1.0 - Enhanced End terrain with building platforms and overworld debris";
+        return "Post-Processing EndOverworldGenerator v7.0 - Applies changes after vanilla/datapack generation";
     }
 }

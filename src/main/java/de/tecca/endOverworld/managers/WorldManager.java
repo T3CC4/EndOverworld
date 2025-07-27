@@ -2,9 +2,7 @@ package de.tecca.endOverworld.managers;
 
 import de.tecca.endOverworld.EndOverworld;
 import de.tecca.endOverworld.world.EndOverworldGenerator;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.generator.ChunkGenerator;
 
 /**
@@ -42,36 +40,112 @@ public class WorldManager {
 
     private World getOrCreateEndWorld() {
         World world = Bukkit.getWorld("world_the_end");
+        /*
         if (world == null) {
+            // Create new world with custom generator
             plugin.getLogger().info("Creating End world with custom generator...");
-
-            WorldCreator creator = new WorldCreator("world_the_end")
-                    .environment(World.Environment.THE_END)
-                    .generator(customGenerator);
-
-            // Additional world settings
-            creator.generateStructures(true); // Enable End cities and other structures
-
-            world = Bukkit.createWorld(creator);
-
-            if (world != null) {
-                // Configure world settings
-                world.setSpawnFlags(true, true); // Allow monsters and animals
-                world.setKeepSpawnInMemory(true);
-                plugin.getLogger().info("Successfully created End world with custom generator");
-            } else {
-                plugin.getLogger().severe("Failed to create End world!");
-            }
+            world = createCustomEndWorld();
         } else {
-            plugin.getLogger().info("Found existing End world: " + world.getName());
-
-            // Check if it's using our generator
+            // Check if existing world uses our generator
             ChunkGenerator generator = world.getGenerator();
             if (!(generator instanceof EndOverworldGenerator)) {
-                plugin.getLogger().warning("Existing End world is not using EndOverworldGenerator - terrain generation may not work as expected");
+                plugin.getLogger().warning("Existing End world found without custom generator!");
+
+                // Option 1: Try to recreate with custom generator
+                if (plugin.getConfig().getBoolean("world.force_custom_generator", true)) {
+                    plugin.getLogger().info("Attempting to recreate End world with custom generator...");
+                    world = recreateEndWorldWithGenerator();
+                } else {
+                    plugin.getLogger().warning("Custom generator disabled in config - using existing world");
+                    plugin.getLogger().warning("Some features may not work properly without custom terrain generation");
+                }
+            } else {
+                plugin.getLogger().info("Found existing End world with custom generator");
             }
         }
+        */
         return world;
+    }
+
+    private World createCustomEndWorld() {
+        WorldCreator creator = new WorldCreator("world_the_end")
+                .environment(World.Environment.THE_END)
+                .generator(customGenerator)
+                .generateStructures(true);
+
+        World world = Bukkit.createWorld(creator);
+
+        if (world != null) {
+            configureWorld(world);
+            plugin.getLogger().info("Successfully created End world with custom generator");
+        } else {
+            plugin.getLogger().severe("Failed to create End world!");
+        }
+
+        return world;
+    }
+
+    private World recreateEndWorldWithGenerator() {
+        try {
+            // Get the existing world
+            World existingWorld = Bukkit.getWorld("world_the_end");
+            if (existingWorld == null) {
+                return createCustomEndWorld();
+            }
+
+            // Save important data
+            Location spawn = existingWorld.getSpawnLocation();
+
+            // Unload the existing world
+            plugin.getLogger().info("Unloading existing End world...");
+            Bukkit.unloadWorld(existingWorld, true);
+
+            // Wait a moment for unloading to complete
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            // Create new world with custom generator
+            plugin.getLogger().info("Creating new End world with custom generator...");
+            WorldCreator creator = new WorldCreator("world_the_end")
+                    .environment(World.Environment.THE_END)
+                    .generator(customGenerator)
+                    .generateStructures(true);
+
+            World newWorld = Bukkit.createWorld(creator);
+
+            if (newWorld != null) {
+                configureWorld(newWorld);
+
+                // Restore spawn location if reasonable
+                if (spawn.getY() > 0 && spawn.getY() < 256) {
+                    newWorld.setSpawnLocation(spawn);
+                }
+
+                plugin.getLogger().info("Successfully recreated End world with custom generator");
+                return newWorld;
+            } else {
+                plugin.getLogger().severe("Failed to recreate End world - attempting fallback");
+                return Bukkit.getWorld("world_the_end"); // Fallback to existing
+            }
+
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error recreating End world: " + e.getMessage());
+            return Bukkit.getWorld("world_the_end"); // Fallback to existing
+        }
+    }
+
+    private void configureWorld(World world) {
+        world.setSpawnFlags(true, true); // Allow monsters and animals
+        world.setKeepSpawnInMemory(true);
+        world.setDifficulty(Difficulty.NORMAL);
+
+        // Set reasonable spawn location for End
+        if (world.getSpawnLocation().getY() < 50) {
+            world.setSpawnLocation(new Location(world, 100, 70, 100));
+        }
     }
 
     private World getOrCreateNetherWorld() {
